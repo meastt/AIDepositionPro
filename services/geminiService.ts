@@ -2,11 +2,15 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { AnalysisResult } from '../types';
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable is not set.");
-}
+const getApiKey = (): string => {
+    const apiKey = process.env.API_KEY;
+    if (!apiKey || apiKey === 'your_api_key_here') {
+        throw new Error("Gemini API key is not configured. Please set GEMINI_API_KEY in your .env.local file. Get your API key from https://aistudio.google.com/app/apikey");
+    }
+    return apiKey;
+};
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 const responseSchema = {
     type: Type.OBJECT,
