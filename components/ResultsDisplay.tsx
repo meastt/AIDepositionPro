@@ -54,7 +54,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result }) => {
   if (!result) return null;
 
   const handleDownload = () => {
-    const dataStr = "data:text/json;charset=utf-to-8," + encodeURIComponent(JSON.stringify(result, null, 2));
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 2));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
     downloadAnchorNode.setAttribute("download", "transcript_analysis.json");

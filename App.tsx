@@ -23,6 +23,13 @@ const App: React.FC = () => {
     setError(null);
   };
 
+  const handleReset = () => {
+    setFile(null);
+    setAnalysisResult(null);
+    setError(null);
+    setLoadingMessage('');
+  };
+
   const extractTextFromPdf = async (pdfFile: File): Promise<string> => {
     const arrayBuffer = await pdfFile.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -84,15 +91,29 @@ const App: React.FC = () => {
           
           <FileUpload onFileSelect={handleFileSelect} disabled={isLoading} />
           
-          <button
-            onClick={handleAnalyze}
-            disabled={!file || isLoading}
-            className="mt-6 w-full bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75"
-          >
-            {isLoading ? 'Analyzing...' : 'Analyze Transcript'}
-          </button>
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={handleAnalyze}
+              disabled={!file || isLoading}
+              className="flex-1 bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75"
+            >
+              {isLoading ? 'Analyzing...' : 'Analyze Transcript'}
+            </button>
+            {(file || analysisResult) && !isLoading && (
+              <button
+                onClick={handleReset}
+                className="bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+              >
+                Reset
+              </button>
+            )}
+          </div>
           
-          {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
+          {error && (
+            <div className="mt-4 p-4 bg-red-900/30 border border-red-700 rounded-lg">
+              <p className="text-red-400 text-center font-semibold">{error}</p>
+            </div>
+          )}
         </div>
 
         {isLoading && <LoadingIndicator message={loadingMessage} />}

@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
         </p>
       </div>
       <p className="text-xs text-gray-500 mt-1 max-w-md mx-auto">
-        Your files are processed securely in your browser. Transcripts are never stored on our servers and are deleted immediately after analysis.
+        PDF text extraction happens securely in your browser. Your transcript is sent to Google's Gemini API for analysis and is not permanently stored.
       </p>
     </footer>
   );
