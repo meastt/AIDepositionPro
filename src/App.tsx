@@ -8,7 +8,28 @@ import { Footer } from './components/Footer';
 import type { AnalysisResult } from './types';
 import { analyzeTranscript } from './services/geminiService';
 
-declare const pdfjsLib: any;
+// Type definitions for PDF.js
+interface PDFDocumentProxy {
+  numPages: number;
+  getPage(pageNumber: number): Promise<PDFPageProxy>;
+}
+
+interface PDFPageProxy {
+  getTextContent(): Promise<TextContent>;
+}
+
+interface TextContent {
+  items: Array<{ str: string }>;
+}
+
+interface PDFJSLib {
+  getDocument(params: { data: ArrayBuffer }): { promise: Promise<PDFDocumentProxy> };
+  GlobalWorkerOptions: {
+    workerSrc: string;
+  };
+}
+
+declare const pdfjsLib: PDFJSLib;
 
 const App: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -38,10 +59,14 @@ const App: React.FC = () => {
     for (let i = 1; i <= numPages; i++) {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item: any) => item.str).join(' ');
+      const pageText = textContent.items.map((item) => item.str).join(' ');
       fullText += pageText + '\n\n';
     }
     return fullText;
+  };
+
+  const handleFileError = (errorMessage: string) => {
+    setError(errorMessage);
   };
 
   const handleAnalyze = useCallback(async () => {
@@ -89,13 +114,18 @@ const App: React.FC = () => {
           <h2 className="text-2xl font-bold text-cyan-400 mb-2">Upload Transcript</h2>
           <p className="text-gray-400 mb-6">Upload a deposition or e-Discovery transcript (.pdf or .txt) to begin.</p>
           
-          <FileUpload onFileSelect={handleFileSelect} disabled={isLoading} />
+          <FileUpload
+            onFileSelect={handleFileSelect}
+            disabled={isLoading}
+            onError={handleFileError}
+          />
           
           <div className="flex gap-3 mt-6">
             <button
               onClick={handleAnalyze}
               disabled={!file || isLoading}
               className="flex-1 bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75"
+              aria-label="Analyze transcript"
             >
               {isLoading ? 'Analyzing...' : 'Analyze Transcript'}
             </button>
@@ -103,6 +133,7 @@ const App: React.FC = () => {
               <button
                 onClick={handleReset}
                 className="bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+                aria-label="Reset form"
               >
                 Reset
               </button>
@@ -110,7 +141,7 @@ const App: React.FC = () => {
           </div>
           
           {error && (
-            <div className="mt-4 p-4 bg-red-900/30 border border-red-700 rounded-lg">
+            <div className="mt-4 p-4 bg-red-900/30 border border-red-700 rounded-lg" role="alert">
               <p className="text-red-400 text-center font-semibold">{error}</p>
             </div>
           )}

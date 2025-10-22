@@ -10,21 +10,38 @@ const UploadCloudIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
   disabled: boolean;
+  onError?: (error: string) => void;
 }
 
-export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, disabled }) => {
+export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, disabled, onError }) => {
   const [fileName, setFileName] = useState<string>('');
   const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
   const handleFileChange = (files: FileList | null) => {
     if (files && files.length > 0) {
       const file = files[0];
-      if (file.type === 'application/pdf' || file.type === 'text/plain') {
-        setFileName(file.name);
-        onFileSelect(file);
-      } else {
-        alert('Please upload a valid PDF or TXT file.');
+
+      // Validate file type
+      if (file.type !== 'application/pdf' && file.type !== 'text/plain') {
+        onError?.('Please upload a valid PDF or TXT file.');
+        return;
       }
+
+      // Validate file size
+      if (file.size > MAX_FILE_SIZE) {
+        onError?.(`File size exceeds 50MB limit. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`);
+        return;
+      }
+
+      // Warn about large files
+      if (file.size > 10 * 1024 * 1024 && onError) {
+        console.warn(`Large file detected: ${(file.size / 1024 / 1024).toFixed(2)}MB. Processing may take longer.`);
+      }
+
+      setFileName(file.name);
+      onFileSelect(file);
     }
   };
 
@@ -80,6 +97,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, disabled }
         accept=".pdf,.txt"
         onChange={onInputChange}
         disabled={disabled}
+        aria-label="Upload transcript file"
       />
     </label>
   );
