@@ -1,0 +1,5 @@
+{
+  "name": "AI Deposition Transcript Mapper",
+  "description": "An AI-powered tool to upload deposition or e-Discovery transcripts (PDF/TXT) and automatically extract key facts, admissions, exhibits, and objections into a structured, downloadable format.",
+  "requestFramePermissions": []
+}
